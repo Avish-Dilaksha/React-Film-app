@@ -1,65 +1,54 @@
-import { useState, useEffect } from 'react'
-import './App.css'
+import React, { useState, useEffect } from "react";
 
-//d5870a3d
+import MovieCard from "./MovieCard";
+import "./App.css";
+
 const API_URL = "http://www.omdbapi.com?apikey=d5870a3d";
 
+const App = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [movies, setMovies] = useState([]);
 
-const movie = {
-  "Title": "Batman v Superman: Dawn of Justice (Ultimate Edition)",
-  "Year": "2016",
-  "imdbID": "tt18689424",
-  "Type": "movie",
-  "Poster": "https://m.media-amazon.com/images/M/MV5BOTRlNWQwM2ItNjkyZC00MGI3LThkYjktZmE5N2FlMzcyNTIyXkEyXkFqcGdeQXVyMTEyNzgwMDUw._V1_SX300.jpg"
-}
+  useEffect(() => {
+    searchMovies("Batman");
+  }, []);
 
-function App() {
-  const [count, setCount] = useState(0)
+  const searchMovies = async (title) => {
+    const response = await fetch(`${API_URL}&s=${title}`);
+    const data = await response.json();
 
-const SearchMovies = async (title) => {
-  const response = await fetch(`${API_URL}&s=${title}`);
-  const data = await response.json();
+    setMovies(data.Search);
+  };
 
-  console.log(data);
-}
-
-  useEffect(()=> {
-    SearchMovies("Batman");
-  },[])
-  
   return (
     <div className="app">
       <h1>Filmetica</h1>
 
       <div className="search">
-        <input 
-        type="text" 
-        placeholder="Search for Movies"
-        value="Superman"
-        onChange={()=> {}}
+        <input
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          placeholder="Search for movies"
         />
-        <img 
-        src="https://raw.githubusercontent.com/gist/adrianhajdin/997a8cdf94234e889fa47be89a4759f1/raw/f13e5a9a0d1e299696aa4a0fe3a0026fa2a387f7/search.svg"
-        alt="search" 
-        onClick={() => {}}
-      />
+        <img src="https://raw.githubusercontent.com/gist/adrianhajdin/997a8cdf94234e889fa47be89a4759f1/raw/f13e5a9a0d1e299696aa4a0fe3a0026fa2a387f7/search.svg"
+          alt="search"
+          onClick={() => searchMovies(searchTerm)}
+        />
       </div>
-      <div className="container">
-        <div className="movie">
-          <div>
-            <p>{movie.Year}</p>
-          </div>
-          <div>
-            <img src={movie.Poster !== 'N/A' ? movie.Poster : 'https://via.placeholder.com/400'} alt={movie.title} />
-          </div>
-          <div>
-            <span>{movie.Type}</span>
-            <h3>{movie.Title}</h3>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
 
-export default App
+      {movies?.length > 0 ? (
+        <div className="container">
+          {movies.map((movie) => (
+            <MovieCard movie={movie} />
+          ))}
+        </div>
+      ) : (
+        <div className="empty">
+          <h2>No movies found</h2>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
